@@ -44,7 +44,7 @@ public:
 	inline MeshColor & meshColors () {return m_meshcolors;}
 
 	inline const int & resolution () const {return m_resolution;}
-	inline int & setResolution (int res) {m_resolution = res;}
+	inline void setResolution (int res) {m_resolution = res;}
 
 	void recomputePerVertexNormals (bool angleBased = false);
 

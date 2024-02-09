@@ -263,14 +263,14 @@ void initScene () {
 	mainMeshPtr->setResolution(3);   // Set r = 2, then resolution  R = 2^r - 1 = 3
 	int R = pow(2,mainMeshPtr->resolution())-1;
 	for (int v = 0; v < mainMeshPtr->vertexPositions().size(); v++){
-		mainMeshPtr->meshColors().addVertexColor(glm::vec3{0.f,0.f,1.f}); // assign blue to vertex, green to edge, red to face
+		mainMeshPtr->meshColors().addVertexColor(glm::vec3{0.f,0.f,0.7f}); // assign blue to vertex, green to edge, red to face
 	}
 	for (int f = 0; f < mainMeshPtr->triangleIndices().size(); f++){ 
 		for (int e = 0; e < 3; e++) 		// each edge
 			for (int t = 0; t < R; t++) 	// add green R times  
-				mainMeshPtr->meshColors().addEdgeColor(glm::vec3{0.f,1.f,0.f});
+				mainMeshPtr->meshColors().addEdgeColor(glm::vec3{0.f,0.7f,0.f});
 		for (int i = 0; i < int(R * (R-1)/2); i++) // Number of face color values in a triangle (1 + 2 + ... + (R-1))
-			mainMeshPtr->meshColors().addFaceColor(glm::vec3{1.f,0.f,0.f}); // add red color
+			mainMeshPtr->meshColors().addFaceColor(glm::vec3{0.7f,0.f,0.f}); // add red color
 	}
 		
 	

@@ -41,7 +41,7 @@ public:
 
 private:
 	GLuint genGPUBuffer (size_t elementSize, size_t numElements, const void * data);
-	GLuint genGPUVertexArray (GLuint posVbo, GLuint ibo, bool hasNormals, GLuint normalVbo);
+	GLuint genGPUVertexArray (GLuint posVbo, GLuint ibo, bool hasNormals, GLuint normalVbo, GLuint colorVbo);
 	GLuint toGPU (std::shared_ptr<Mesh> meshPtr);
 	void initScreeQuad ();
 	void setCamera (std::shared_ptr<Scene> scenePtr);

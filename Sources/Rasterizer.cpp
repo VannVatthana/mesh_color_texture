@@ -167,7 +167,7 @@ GLuint Rasterizer::genGPUBuffer (size_t elementSize, size_t numElements, const v
 	return vbo;
 }
 
-GLuint Rasterizer::genGPUVertexArray (GLuint posVbo, GLuint ibo, bool hasNormals, GLuint normalVbo) {
+GLuint Rasterizer::genGPUVertexArray (GLuint posVbo, GLuint ibo, bool hasNormals, GLuint normalVbo, GLuint colorVbo) {
 	GLuint vao;
 	glGenVertexArrays (1, &vao); // Create a single handle that joins together attributes (vertex positions, normals) and connectivity (triangles indices)
 	glBindVertexArray (vao);
@@ -181,6 +181,10 @@ GLuint Rasterizer::genGPUVertexArray (GLuint posVbo, GLuint ibo, bool hasNormals
 		glVertexAttribPointer (attrib, 3, GL_FLOAT, GL_FALSE, 3 * sizeof (GLfloat), 0);
 		attrib++; // Replicate this strategy for more vertex attributes
 	}
+	glEnableVertexAttribArray (attrib);
+	glBindBuffer (GL_ARRAY_BUFFER, colorVbo);
+	glVertexAttribPointer (attrib, 3, GL_FLOAT, GL_FALSE, 3 * sizeof (GLfloat), 0);
+	
 	glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, ibo);
 	glBindVertexArray (0); // Desactive the VAO just created. Will be activated at rendering time.
 	return vao;
@@ -189,8 +193,11 @@ GLuint Rasterizer::genGPUVertexArray (GLuint posVbo, GLuint ibo, bool hasNormals
 GLuint Rasterizer::toGPU (std::shared_ptr<Mesh> meshPtr) {
 	GLuint posVbo = genGPUBuffer (3 * sizeof (float), meshPtr->vertexPositions().size(), meshPtr->vertexPositions().data ()); // Position GPU vertex buffer
 	GLuint normalVbo = genGPUBuffer (3 * sizeof (float), meshPtr->vertexNormals().size(), meshPtr->vertexNormals().data ()); // Normal GPU vertex buffer
+	GLuint vertexColorVbo = genGPUBuffer (3 * sizeof (float), meshPtr->vertexNormals().size(), meshPtr->meshColors().vertexColors().data ()); // Normal GPU vertex buffer
+	GLuint edgeColorVbo = genGPUBuffer (3 * sizeof (float), meshPtr->vertexNormals().size(), meshPtr->meshColors().edgeColors().data ()); // Normal GPU vertex buffer
+	GLuint faceColorVbo = genGPUBuffer (3 * sizeof (float), meshPtr->vertexNormals().size(), meshPtr->meshColors().faceColors().data ()); // Normal GPU vertex buffer
 	GLuint ibo = genGPUBuffer (sizeof (glm::uvec3), meshPtr->triangleIndices().size(), meshPtr->triangleIndices().data ()); // triangle GPU index buffer
-	GLuint vao = genGPUVertexArray (posVbo, ibo, true, normalVbo);
+	GLuint vao = genGPUVertexArray (posVbo, ibo, true, normalVbo,vertexColorVbo);
 	return vao;
 }
 
@@ -202,7 +209,7 @@ void Rasterizer::initScreeQuad () {
 		genGPUBuffer (3*sizeof(float), 4, pData.data()),
 		genGPUBuffer (3*sizeof(unsigned int), 2, iData.data()),
 		false,
-		0);
+		0, 1);
 }
 
 void Rasterizer::setCamera (std::shared_ptr<Scene> scenePtr) {

@@ -55,7 +55,7 @@ void encodeToPNG(const std::vector<std::vector<glm::vec4>> texture2d, const char
 }
 
 // 3.2 - 3.3 Generate different mipmap levels with 4D coordinates
-void generateMipmaps(std::shared_ptr<Mesh> mesh, std::vector<std::vector<glm::vec4>> mipmap_level0, int texelSize)//, std::vector<std::vector<glm::vec4>> texel2d)
+void generateMipmaps(std::shared_ptr<Mesh> mesh, int texelSize)//, std::vector<std::vector<glm::vec4>> texel2d)
 {
   // calculate u_s, u_delta for each rectangular face
   int r = mesh->resolution();
@@ -67,12 +67,6 @@ void generateMipmaps(std::shared_ptr<Mesh> mesh, std::vector<std::vector<glm::ve
   std::vector<std::vector<glm::vec2>> u_s,u_l;  // texture coordinates for each face
   std::vector<glm::vec2>  u_delta;
 
-  /*for (int f = 0; f < n_face; f++)
-  {
-    glm::vec2 u_delta_face = glm::mod(textureCoords[2*f][1], glm::vec2(power)); // Since i'm not using texture coordinates anyway, I dont need to add the offset (0.5,0.5) 
-    u_delta.push_back(u_delta_face); 
-    u_s.push_back({textureCoords[2*f][1]-u_delta_face+glm::vec2(0,power), textureCoords[2*f][1]-u_delta_face, textureCoords[2*f][1]-u_delta_face+ glm::vec2(power,0), textureCoords[2*f][1]-u_delta_face + glm::vec2(power,power)});
-  }*/
   glm::vec2 us(0,0);
   glm::vec2 ud(0,0);
   int n_rectPerRow = floor(texelSize / (R+5));  // Each rectangle takes R + 5 texel width and R + 2 height
@@ -80,18 +74,18 @@ void generateMipmaps(std::shared_ptr<Mesh> mesh, std::vector<std::vector<glm::ve
     n_rectPerRow = floor(n_rectPerRow / pow(2,r-1))*pow(2,r-1); // make sure that the last texel with color values is divisible by 2^r
   
   for(int row = 0;row<floor(n_face/n_rectPerRow);row++){
-     //glm::vec2 ud = glm::vec2(0,(R+1)*row);
-    //glm::vec2 us = glm::vec2(0,(R+1)*row);
     for(int col = 0; col < n_rectPerRow; col++){
       if (u_s.size() == n_face)
         break;
+      else{
       u_s.push_back({us-ud+glm::vec2(0,R+1),us-ud,us-ud+glm::vec2(R+1,0),us-ud+glm::vec2(R+1,R+1)});
       u_delta.push_back(ud);
-      int usx = ud.x+R+1;
-      int udx = usx+1;
+      int usx = ud.x+R+1+2+2;
+      int udx = usx;
       ud = glm::vec2(udx,ud.y);
       us = glm::vec2(usx,us.y);
-    } 
+      } 
+    }
     ud += glm::vec2(0,1) + glm::vec2(-ud.x,0);
     us = glm::vec2(0,(R+2)*(row+1));
   }
@@ -101,7 +95,6 @@ void generateMipmaps(std::shared_ptr<Mesh> mesh, std::vector<std::vector<glm::ve
     int R_l = pow(2.f, r - level) -1; // resolution for the mipmap level
     for(int f = 0; f < n_face; f++)
       u_l.push_back({(u_s[f][0]/coef)+u_delta[f],(u_s[f][1]/coef)+u_delta[f],(u_s[f][1]/coef)+u_delta[f] + glm::vec2(power/coef,0),(u_s[f][2]/coef)+u_delta[f]+glm::vec2(3,0),(u_s[f][3]/coef)+u_delta[f] + glm::vec2(3,0),(u_s[f][3]/coef)+u_delta[f] + glm::vec2(3-power/coef,0)}); 
-      //u_l.push_back({(u_s[f][0]/coef)+u_delta[f],(u_s[f][1]/coef)+u_delta[f],(u_s[f][2]/coef)+u_delta[f],(u_s[f][3]/coef)+u_delta[f]}); 
     // store 6 vertices instead of 4 for u_l
     
     std::vector<std::vector<glm::vec4>> mipmap_l(texelSize, std::vector<glm::vec4> (texelSize, glm::vec4{1.f,1.f,1.f,0.f}));
@@ -213,13 +206,13 @@ void generate2DTextureLayout(std::shared_ptr<Mesh> mesh, int textureSize, const 
         texel2d[y_c3+1][x_c3] += glm::vec4(delta,0.0f); 
         texel2d[y_c3+1][x_c3 + 1] -= glm::vec4(delta,0.0f);
 
-        texel2d[y_c3][x_c3] = c3;//texel2d[y_c3][x_c3 + 1] + texel2d[y_c3+1][x_c3] - texel2d[y_c3+1][x_c3 + 1];
+        texel2d[y_c3][x_c3] = c3;
         x_c3--;
         y_c3++;
       }
     }
   }
   encodeToPNG(texel2d, filename);
-  generateMipmaps(mesh,texel2d,textureSize);
+  generateMipmaps(mesh,textureSize);
 }
 

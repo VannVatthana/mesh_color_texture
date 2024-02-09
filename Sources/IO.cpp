@@ -55,7 +55,8 @@ std::shared_ptr<Mesh> IO::loadOFFMesh (const std::string & filename) {
 }
 
 std::shared_ptr<Mesh> IO::loadOBJMesh (const std::string & filename) {
-	Console::print ("Start loading mesh <" + filename + ">");
+	// Not yet finished, To be ignored for now
+    Console::print ("Start loading mesh <" + filename + ">");
 	auto meshPtr = std::make_shared<Mesh>();
     ifstream in (filename.c_str ());
     if (!in) 
@@ -89,18 +90,16 @@ std::shared_ptr<Mesh> IO::loadOBJMesh (const std::string & filename) {
                     iss.ignore(); // Ignore the '/'
                     // Skip the texture coordinate and normal indices
                     //iss.ignore(std::numeric_limits<std::streamsize>::max(), ' ');
-                    //if (iss.peek()!= '/')
-                    //    iss >> textureIndex;
-                      //if (iss.peek() == '/') {
-                      //  iss.ignore();
-                      //  iss >> normalIndex;
-                      //}
+                    if (iss.peek()!= '/')
+                        iss >> textureIndex;
+                      if (iss.peek() == '/') {
+                        iss.ignore();
+                        iss >> normalIndex;
+                      }
                 }
                 if(face.size() < 4)
                     face.push_back(vertexIndex);
             }
-            //std::cout<<face.size()<<std::endl;
-            //std::cout<<face[0] << " " <<face[1]<<" "<<face[2]<<" "<<face[3]<<std::endl;
             meshPtr->addTriangleFace(glm::uvec3(face[0]-1,face[1]-1,face[2]-1));
             //meshPtr->addTriangleFace(glm::uvec3(face[0]-1,face[2]-1,face[3]-1));         
         } 
@@ -117,10 +116,6 @@ std::shared_ptr<Mesh> IO::loadOBJMesh (const std::string & filename) {
     //meshPtr->vertexNormals().resize(meshPtr->vertexPositions().size(), glm::vec3(0.f, 0.f, 1.f));
     //meshPtr->recomputePerVertexNormals();
 
-    //for (auto& face : meshPtr->triangleIndices())
-    //    std::cout<<face.x << " " <<face.y<< " " << face.z <<std::endl;
-
-
     //Load material information from MTL file
     //loadMTL(mtlFile, currentMtl, meshPtr);
 
@@ -130,14 +125,13 @@ std::shared_ptr<Mesh> IO::loadOBJMesh (const std::string & filename) {
 
 std::shared_ptr<Material> IO::loadMTL (const std::string & filename)
 {
+    // Not yet finished, to be ignore for now
     Console::print ("Start loading material <" + filename + ">");
 	
     ifstream in (filename.c_str ());
     if (!in) 
         throw std::ios_base::failure ("[Material Loader][loadMTL] Cannot open " + filename);
 
-    //std::vector<std::make_shared<Material>()> materials;
-    //Material currentMaterial ;
     auto currentMaterial = std::make_shared<Material>();
     string line;
     while (getline(in, line)) {
@@ -145,41 +139,18 @@ std::shared_ptr<Material> IO::loadMTL (const std::string & filename)
         std::string dataType;
         iss >> dataType;
 
-        /*if(dataType == "newmtl"){
-            //if (!currentMaterial->name().empty()) {
-                // If not the first material, add the current one to the vector
-            //    materials.push_back(currentMaterial);
-            //}
-            currentMaterial = {};
-            string matName;
-            iss >> matName;
-            currentMaterial->setName(matName);
-        }*/ /*else if (dataType == "Ka") {
-            // Ambient color
-            iss >> currentMaterial->ambient.r >> currentMaterial->ambient.g >> currentMaterial->ambient.b;
-        }*/ if (dataType == "Kd") {
+        if (dataType == "Kd") {
             // Diffuse color
             glm::vec3 albedo;
             iss >> albedo[0] >> albedo[1] >> albedo[2];
             currentMaterial->setAlbedo(albedo);
-        }/*else if (dataType == "Ks") {
-            // Specular color
-            //iss >> currentMaterial->specular.r >> currentMaterial->specular.g >> currentMaterial->specular.b;
-        }*/ else if (dataType == "Ns") {
+        } else if (dataType == "Ns") {
             // Shininess
             float shininess;
             iss >> shininess;
             currentMaterial->setRoughness(1-(shininess/1000));
         }
-        //currentMaterial->setMetallicness(0.0f);
     }
-
-    // Add the last material to the vector
-    //if (!currentMaterial->name().empty()) {
-    //    materials.push_back(currentMaterial);
-    //}
-
     in.close();
-    //std::cout<< currentMaterial->albedo()[0] << currentMaterial->metallicness() << currentMaterial->roughness() <<std::endl;
     return currentMaterial;
 }

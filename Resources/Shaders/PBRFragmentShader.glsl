@@ -28,10 +28,11 @@ uniform Material material;
 // Shader inputs, linearly interpolated by default from the previous stage outputs (here the vertex shader)
 in vec3 fPosition; 
 in vec3 fNormal;
+in vec3 fColor;
 
 out vec4 colorResponse; // Shader output: the color response attached to this fragment
 
-float sqr (float x) { return x*x; }
+/*float sqr (float x) { return x*x; }
 
 float GGX (float NdotH, float roughness) {
 	if (roughness >= 1.0) 
@@ -96,10 +97,13 @@ vec3 pbrShading (vec3 wo, vec3 n, vec3 albedo, float roughness, float metallic) 
 	for (int i = 0; i < numOfLightSources; i++)
 		radiance += computeReflectedRadiance (lightSources[i], wo, n, albedo, roughness, metallic);
    	return radiance; 
-}
+}*/
 
 void main () {
-	vec3 n = normalize (fNormal);// Linear barycentric interpolation does not preserve unit vectors, normal texture filtering
-	vec3 wo = normalize (-fPosition);
-	colorResponse = vec4 (pbrShading (wo, n, material.albedo, material.roughness, material.metallicness), 1.0);
+	//vec3 n = normalize (fNormal);// Linear barycentric interpolation does not preserve unit vectors, normal texture filtering
+	//vec3 wo = normalize (-fPosition);
+	//vec3 pbrColor = pbrShading (wo, n, material.albedo, material.roughness, material.metallicness);
+	//vec3 finalColor = mix(pbrColor,fColor,0.5);
+	
+	colorResponse = vec4(fColor,1.0);
 }
