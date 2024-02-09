@@ -275,7 +275,7 @@ void initScene () {
 		
 	
 	generate2DTextureLayout(mainMeshPtr, 128, "mipmap_level_0_with_c3.png");
-	//generateMipmaps(mainMeshPtr,128);
+	generateMipmaps(mainMeshPtr,128);
 
 	auto mainMaterialPtr = std::make_shared<Material> (glm::vec3 (0.4f, 0.4f, 0.4f), 0.0, 0.0); //(glm::vec3 (1.0, 0.85, 0.0f), 0.4, 0.0);
 	scenePtr->add (mainMeshPtr);
@@ -379,8 +379,8 @@ void update (float currentTime) {
 		frameCount = 0;
 		fpsTime = currentTime;
 	}
-	std::string titleWithFPS = BASE_WINDOW_TITLE + " - " + std::to_string (FPS) + "FPS" 
-							   + " - " + (isDisplayRaytracing ? "Raytracing" : "Rasterization");
+	std::string titleWithFPS = BASE_WINDOW_TITLE + " - " + std::to_string (FPS) + "FPS" ;
+							   //+ " - " + (isDisplayRaytracing ? "Raytracing" : "Rasterization");
 	glfwSetWindowTitle (windowPtr, titleWithFPS.c_str ());
 	lastTime = currentTime;
 	frameCount++;

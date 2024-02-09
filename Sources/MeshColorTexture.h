@@ -65,7 +65,7 @@ void generateMipmaps(std::shared_ptr<Mesh> mesh, int texelSize)//, std::vector<s
 
   std::vector<std::vector<glm::vec2>> textureCoords = mesh->textureCoordinates();
   std::vector<std::vector<glm::vec2>> u_s,u_l;  // texture coordinates for each face
-  std::vector<glm::vec2>  u_delta;
+  std::vector<glm::vec2> u_delta;
 
   glm::vec2 us(0,0);
   glm::vec2 ud(0,0);
@@ -78,7 +78,7 @@ void generateMipmaps(std::shared_ptr<Mesh> mesh, int texelSize)//, std::vector<s
       if (u_s.size() == n_face)
         break;
       else{
-      u_s.push_back({us-ud+glm::vec2(0,R+1),us-ud,us-ud+glm::vec2(R+1,0),us-ud+glm::vec2(R+1,R+1)});
+      u_s.push_back({us-ud+ glm::vec2(0,R+1),us-ud,us-ud+glm::vec2(R+1,0),us-ud+glm::vec2(R+1,R+1)});
       u_delta.push_back(ud);
       int usx = ud.x+R+1+2+2;
       int udx = usx;
@@ -94,7 +94,7 @@ void generateMipmaps(std::shared_ptr<Mesh> mesh, int texelSize)//, std::vector<s
     float coef = pow(2.f,level);
     int R_l = pow(2.f, r - level) -1; // resolution for the mipmap level
     for(int f = 0; f < n_face; f++)
-      u_l.push_back({(u_s[f][0]/coef)+u_delta[f],(u_s[f][1]/coef)+u_delta[f],(u_s[f][1]/coef)+u_delta[f] + glm::vec2(power/coef,0),(u_s[f][2]/coef)+u_delta[f]+glm::vec2(3,0),(u_s[f][3]/coef)+u_delta[f] + glm::vec2(3,0),(u_s[f][3]/coef)+u_delta[f] + glm::vec2(3-power/coef,0)}); 
+      u_l.push_back({(u_s[f][0]/coef)+u_delta[f],(u_s[f][1]/coef)+u_delta[f],(u_s[f][1]/coef)+u_delta[f]+ glm::vec2(power/coef,0),(u_s[f][2]/coef)+u_delta[f]+glm::vec2(3,0),(u_s[f][3]/coef)+u_delta[f] + glm::vec2(3,0),(u_s[f][3]/coef)+u_delta[f] + glm::vec2(3-power/coef,0)}); 
     // store 6 vertices instead of 4 for u_l
     
     std::vector<std::vector<glm::vec4>> mipmap_l(texelSize, std::vector<glm::vec4> (texelSize, glm::vec4{1.f,1.f,1.f,0.f}));
@@ -159,6 +159,9 @@ void generate2DTextureLayout(std::shared_ptr<Mesh> mesh, int textureSize, const 
           }
         edge_dist+=1;
       }
+
+      for(int iter = 0; iter < 5; iter++)
+      {
       // Interpolate C3 
       int x_c3 = ft[0].x + 1;
       int y_c3 = ft[0].y;
@@ -174,9 +177,10 @@ void generate2DTextureLayout(std::shared_ptr<Mesh> mesh, int textureSize, const 
         texel2d[y_c3-1][x_c3] += glm::vec4(delta,0.0f); 
         texel2d[y_c3-1][x_c3-1] -= glm::vec4(delta,0.0f);
 
-        texel2d[y_c3][x_c3] = c3;
+        texel2d[y_c3][x_c3] = texel2d[y_c3][x_c3 - 1] + texel2d[y_c3-1][x_c3] - texel2d[y_c3-1][x_c3-1];
         x_c3++;
         y_c3--;
+      }
       }
     }
     else{
@@ -192,7 +196,9 @@ void generate2DTextureLayout(std::shared_ptr<Mesh> mesh, int textureSize, const 
         edge_dist+=1;
       }
       
-      // Interpolate C3 
+      for (int iter = 0; iter < 5; iter++)
+      {
+        // Interpolate C3 
       int x_c3 = ft[0].x - 1, y_c3 = ft[0].y;
       
       while (y_c3 < ft[2].y){
@@ -206,13 +212,14 @@ void generate2DTextureLayout(std::shared_ptr<Mesh> mesh, int textureSize, const 
         texel2d[y_c3+1][x_c3] += glm::vec4(delta,0.0f); 
         texel2d[y_c3+1][x_c3 + 1] -= glm::vec4(delta,0.0f);
 
-        texel2d[y_c3][x_c3] = c3;
+        texel2d[y_c3][x_c3] = texel2d[y_c3][x_c3 + 1] + texel2d[y_c3+1][x_c3] - texel2d[y_c3+1][x_c3+1];
         x_c3--;
         y_c3++;
       }
+      }
+      
     }
   }
   encodeToPNG(texel2d, filename);
-  generateMipmaps(mesh,textureSize);
 }
 
